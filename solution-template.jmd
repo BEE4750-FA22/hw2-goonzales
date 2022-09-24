@@ -86,7 +86,7 @@ function concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
 end
 
 C = concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
-println(C)
+
 using Plots
 plot(x,C,xlabel="Distance (km)",ylabel="DO Concentration (mg/L)",title="DO vs. distance",label="DO");
 vline!([15],label="Waste Source 2");
@@ -95,6 +95,17 @@ hline!([4],label="Regulatory Limit")
 ```
 
 ## Problem 1.2
+```julia
+i = 15
+distfrom2 = 0
+while C[i] < 6
+  global distfrom2 = i
+  global i = i+1
+end
+distfrom2 = i
+```
+The distance from Waste Source 2 until the DO concentration returns to 
+6 mg/L is `j distfrom2` km.
 
 ## Problem 1.3
 
