@@ -19,6 +19,80 @@ Pkg.instantiate()
 # Problem 1
 
 ## Problem 1.1
+```julia
+#set all the variables outside the function
+B0Riv = 5 #mg/L
+N0Riv = 5 #mg/L
+B0WS1 = 50 #mg/L
+N0WS1 = 35 #mg/L
+B0WS2 = 45 #mg/L
+N0WS2 = 35 #mg/L 
+
+#create distance vector 
+x = 0:1:50
+
+function concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
+    #cut everything here
+    #create in function variables
+    U = 6 #km/d
+    ka = 0.55
+    kc = 0.35
+    kn = 0.25 
+    Cs = 10 #mg/L
+    C0Riv = 7.5 #mg/L
+    C0WS1 = 5 #mg/L
+    C0WS2 = 5 #mg/L
+    rivflow = 100000*1000 #L/d 
+    ws1flow = 10000*1000 #L/d
+    ws2flow = 15000*1000 #L/d
+    dist = 15 #km
+
+   
+
+    #calculate concentrations before WS2 
+    PreWS2flow = rivflow+ws1flow
+    PreWS2C0 = ((C0Riv*rivflow)+(C0WS1*ws1flow))/(PreWS2flow)
+    PreWS2B0 = ((B0Riv*rivflow)+(B0WS1*ws1flow))/(PreWS2flow)
+    PreWS2N0 = ((N0Riv*rivflow)+(N0WS1*ws1flow))/(PreWS2flow)
+
+    #preallocate a vector for the DO, BOD, NOD
+    C = zeros(51,1)
+    
+    #loop to calculate the concentration before WS2
+    for i in 1:(dist+1)
+        alpha1 = exp(-(ka*x[i])/U)
+        alpha2 = (kc/(ka-kc))*(exp(-(kc*x[i])/U)-exp(-(ka*x[i])/U))
+        alpha3 = (kn/(ka-kn))*(exp(-(kn*x[i])/U)-exp(-(ka*x[i])/U))
+        global C[i] = (Cs*(1-alpha1))+(PreWS2C0*alpha1)-(PreWS2B0*alpha2)-(PreWS2N0*alpha3)
+    end
+
+    #calculate the concentrations after WS2
+    PostWS2flow = PreWS2flow + ws2flow
+    PostWS2C0 = ((C[dist+1]*PreWS2flow)+(C0WS2*ws2flow))/PostWS2flow
+    NewB0 = PreWS2B0*exp(-(kc*(dist+1))/U)
+    PostWS2B0 = ((NewB0*PreWS2flow)+(B0WS2*ws2flow))/PostWS2flow
+    NewN0 = PreWS2N0*exp(-(kn*(dist+1))/U)
+    PostWS2N0 = ((NewN0*PreWS2flow)+(N0WS2*ws2flow))/PostWS2flow
+  
+    #loop to calculate the concentration after WS2
+    for i in (dist+1):51
+        newindex = i-(dist)
+        alpha1 = exp(-(ka*x[newindex])/U)
+        alpha2 = (kc/(ka-kc))*(exp(-(kc*x[newindex])/U)-exp(-(ka*x[newindex])/U))
+        alpha3 = (kn/(ka-kn))*(exp(-(kn*x[newindex])/U)-exp(-(ka*x[newindex])/U))
+        global C[i] = (Cs*(1-alpha1))+(PostWS2C0*alpha1)-(PostWS2B0*alpha2)-(PostWS2N0*alpha3)
+    end   
+    return C
+end
+
+C = concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
+println(C)
+using Plots
+plot(x,C,xlabel="Distance (km)",ylabel="DO Concentration (mg/L)",title="DO vs. distance",label="DO");
+vline!([15],label="Waste Source 2");
+vline!([0],label="Waste Source 1");
+hline!([4],label="Regulatory Limit")
+```
 
 ## Problem 1.2
 
