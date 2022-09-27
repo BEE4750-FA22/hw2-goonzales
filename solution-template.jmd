@@ -117,10 +117,7 @@ while Cmin < 4
     local Treat2B0 = ((100-e)/100)*B0WS2
     local Treat2N0 = ((100-e)/100)*N0WS2
     local Ctreated = concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,Treat2B0,Treat2N0)
-    println(Ctreated)
     global Cmin = minimum(Ctreated)
-    println(Cmin)
-    println(e)
     global e = e+1
 end     
 println(e-1)
@@ -128,6 +125,24 @@ println(e-1)
 The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j (e-1)`. 
 
 ## Problem 1.4
+```julia
+Cmin = 0
+e = 0
+while Cmin < 4 
+    local Treat1B0 = ((100-e)/100)*B0WS1
+    local Treat1N0 = ((100-0)/100)*N0WS1
+    local Treat2B0 = ((100-e)/100)*B0WS2
+    local Treat2N0 = ((100-e)/100)*N0WS2
+    local Ctreated = concentration_calc(x,B0Riv,N0Riv,Treat1B0,Treat1N0,Treat2B0,Treat2N0)
+    println(Ctreated)
+    global Cmin = minimum(Ctreated)
+    println(Cmin)
+    println(e)
+    global e = e+1
+end    
+```
+The minimum level of treatment for both sources to not go below 4 mg/L is `j (e-1)`. 
+
 
 ## Problem 1.5
 
