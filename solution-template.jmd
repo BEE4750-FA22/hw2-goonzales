@@ -69,9 +69,9 @@ function concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
     #calculate the concentrations after WS2
     PostWS2flow = PreWS2flow + ws2flow
     PostWS2C0 = ((C[dist+1]*PreWS2flow)+(C0WS2*ws2flow))/PostWS2flow
-    NewB0 = PreWS2B0*exp(-(kc*(dist+1))/U)
+    NewB0 = PreWS2B0*exp(-(kc*(dist))/U)
     PostWS2B0 = ((NewB0*PreWS2flow)+(B0WS2*ws2flow))/PostWS2flow
-    NewN0 = PreWS2N0*exp(-(kn*(dist+1))/U)
+    NewN0 = PreWS2N0*exp(-(kn*(dist))/U)
     PostWS2N0 = ((NewN0*PreWS2flow)+(N0WS2*ws2flow))/PostWS2flow
   
     #loop to calculate the concentration after WS2
@@ -113,13 +113,14 @@ The distance from Waste Source 2 until the DO concentration returns to
 #we can plug different B0/N0 into the function from before
 Cmin = 0
 e = 0
+using Plots
 while Cmin < 4 
     local Treat2B0 = ((100-e)/100)*B0WS2
     local Treat2N0 = ((100-e)/100)*N0WS2
     local Ctreated = concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,Treat2B0,Treat2N0)
     global Cmin = minimum(Ctreated)
     global e = e+1
-end     
+end  
 println(e-1)
 ```
 The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j (e-1)`. 
@@ -130,14 +131,11 @@ Cmin = 0
 e = 0
 while Cmin < 4 
     local Treat1B0 = ((100-e)/100)*B0WS1
-    local Treat1N0 = ((100-0)/100)*N0WS1
+    local Treat1N0 = ((100-e)/100)*N0WS1
     local Treat2B0 = ((100-e)/100)*B0WS2
     local Treat2N0 = ((100-e)/100)*N0WS2
     local Ctreated = concentration_calc(x,B0Riv,N0Riv,Treat1B0,Treat1N0,Treat2B0,Treat2N0)
-    println(Ctreated)
     global Cmin = minimum(Ctreated)
-    println(Cmin)
-    println(e)
     global e = e+1
 end    
 ```
@@ -145,8 +143,30 @@ The minimum level of treatment for both sources to not go below 4 mg/L is `j (e-
 
 
 ## Problem 1.5
+I would opt to treat both waste streams equally to improve conditions in the river between Waste Source 1 and Waste Source 2, even though these improvements are not legally necessary. 
+In order to make a more informed decision, it would be helpful to know what the two waste sources are, 
+the resources available for treating each source's waste, the specific kind of waste that's producing CBOD and NBOD, 
+the ecological conditions of the river, the density of people living at different points in the river, and the communities affected by the river. 
+These paameters could influence which source is easier to treat and which parts of the river are more important to conserve. 
+
 
 ## Problem 1.6
+```julia
+NewRivB0 = rand(4:7,10,1)
+NewRivN0 = rand(3:8,10,1)
+#find the minimum C value for each of these new values
+below4count = 0
+for i in eachindex(NewRivB0)
+    for j in eachindex(NewRivN0)
+        local C = concentration_calc(x,NewRivB0[i],NewRivN0[j],B0WS1,N0WS1,B0WS2,N0WS2)
+        if minimum(C)<4
+            global below4count = below4count + 1
+        end
+    end
+end
+#calculate what percent of Cmin is greater than 4
+percentbelow4 = below4count/100
+```
 
 ## Problem 1.7
 
