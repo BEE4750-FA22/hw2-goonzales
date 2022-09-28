@@ -121,9 +121,9 @@ while Cmin < 4
     global Cmin = minimum(Ctreated)
     global e = e+1
 end  
-println(e-1)
+treatws2mineff = e-1
 ```
-The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j (e-1)`. 
+The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j treatws2mineff`. 
 
 ## Problem 1.4
 ```julia
@@ -138,8 +138,9 @@ while Cmin < 4
     global Cmin = minimum(Ctreated)
     global e = e+1
 end    
+treatbothmineff = e-1
 ```
-The minimum level of treatment for both sources to not go below 4 mg/L is `j (e-1)`. 
+The minimum level of treatment for both sources to not go below 4 mg/L is `j treatbothmineff`. 
 
 
 ## Problem 1.5
@@ -152,21 +153,35 @@ These paameters could influence which source is easier to treat and which parts 
 
 ## Problem 1.6
 ```julia
-NewRivB0 = rand(4:7,10,1)
-NewRivN0 = rand(3:8,10,1)
+#for 1.6 and 1.7, create new N0 and B0 values given treatment 
+Treatby1point5B0WS1 = (1-treatbothmineff)*B0WS1
+Treatby1point5N0WS1 = (1-treatbothmineff)*N0WS1
+Treatby1point5B0WS2 = (1-treatbothmineff)*B0WS2
+Treatby1point5N0WS2 = (1-treatbothmineff)*N0WS2
+
+#create a random sample
+totalsamples = 10
 #find the minimum C value for each of these new values
-below4count = 0
-for i in eachindex(NewRivB0)
-    for j in eachindex(NewRivN0)
-        local C = concentration_calc(x,NewRivB0[i],NewRivN0[j],B0WS1,N0WS1,B0WS2,N0WS2)
-        if minimum(C)<4
-            global below4count = below4count + 1
+NewRivB0 = rand(4:7,totalsamples,1)
+NewRivN0 = rand(3:8,totalsamples,1)
+function below4(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
+    global below4count = 0
+    for i in eachindex(RivB0)
+        for j in eachindex(RivN0)
+            C = concentration_calc(x,RivB0[i],RivN0[j],B0WS1,N0WS1,B0WS2,N0WS2)
+            if minimum(C)<=4
+                global below4count = below4count + 1
+            end
         end
     end
+    percentbelow4 = round((below4count/(totalsamples*totalsamples))*100)
+    return percentbelow4
 end
-#calculate what percent of Cmin is greater than 4
-percentbelow4 = below4count/100
+
+#calculate what percent of Cmin is less than 4 given treatment and variability
+percent = below4(x,NewRivB0,NewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
 ```
+You will observe DO concentrations below 4 mg/l `j percent`% of the time. 
 
 ## Problem 1.7
 
@@ -186,6 +201,10 @@ function sample_correlated_uniform(n, a, b, corr_coef=0.7)
   samples = (unif_samples .* [a[2] - a[1] b[2] - b[1]]) .+ [a[1] b[1]]
   return samples
 end
+```
+```julia
+
+
 ```
 
 ## Problem 1.8
