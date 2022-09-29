@@ -161,6 +161,8 @@ Treatby1point5N0WS2 = (1-treatbothmineff)*N0WS2
 
 #create a random sample
 totalsamples = 100
+using Random
+Random.seed!(5)
 #find the minimum C value for each of these new values
 NewRivB0 = rand(4:7,totalsamples,1)
 NewRivN0 = rand(3:8,totalsamples,1)
@@ -227,7 +229,7 @@ While Problem 1.5 found a minimum treatment level such that the river would not 
 concentrations lower than 4 mg/L, when uncertainty was included in Problems 1.6 and 1.7, it appeared likely 
 that DO concentrations would not meet standards more than half of the time. Additionally, having correlated CBOD and NBOD 
 concentrations restricted the number of combinations of the two parameters, and from a series of Monte Carlo simulations, it appeared 
-that the correlation is associated with a higher probability of dropping below 4 mg/L. 
+that the correlation is associated with a slightly higher probability of dropping below 4 mg/L. 
 
 While I would keep the same general approach as in Problem 1.5, where I would treat both waste sources,
 I would have to determine a different minimum treatment level. 
@@ -238,3 +240,14 @@ DO concentrations in the river - and determine the treatment necessary under tho
 It would be beneficial to know more about the underlying distribution and about conditions that might affect higher/lower river DO. 
 
 # References
+Julia Discourse [HelgavonLichtenstein]. (2019, March). How to create a random Uniform Distribution between (but excluding) 0 and 10. [Online forum post]. Julia. https://discourse.julialang.org/t/how-to-create-a-random-uniform-distribution-between-but-excluding-0-and-10/21908
+
+Julia Discourse [Robo360]. (2020, April). How to calculate the minimum value in a vector(array) of vectors [Online forum post]. Julia. https://discourse.julialang.org/t/how-to-calculate-the-the-minimum-value-in-a-vector-array-of-vectors/38111
+
+Random Numbers. (n.d.). Julia. Retrieved September 29, 2022, from https://docs.julialang.org/en/v1/stdlib/Random/index.html#Generators-(creation-and-seeding)-1.
+
+Roelpi. (2020, May 4). Sampling from a specific distribution in Julia. Roel Peters. https://www.roelpeters.be/sampling-from-a-specific-distribution-in-julia/#:~:text=Using%20base%20functions&text=The%20rand%20function%20generates%20a,dimensions%20that%20define%20the%20output.
+
+Stack Overflow [user2820578]. (2014, July 29). Set the random seed in julia generator of random numbers [Online forum post]. Stack Overflow. https://stackoverflow.com/questions/25006370/set-the-random-seed-in-julia-generator-of-random-numbers
+
+With help from Sarah Mack and Ed Discussion. 
