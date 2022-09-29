@@ -32,7 +32,6 @@ N0WS2 = 35 #mg/L
 x = 0:1:50
 
 function concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
-    #cut everything here
     #create in function variables
     U = 6 #km/d
     ka = 0.55
@@ -46,8 +45,6 @@ function concentration_calc(x,B0Riv,N0Riv,B0WS1,N0WS1,B0WS2,N0WS2)
     ws1flow = 10000*1000 #L/d
     ws2flow = 15000*1000 #L/d
     dist = 15 #km
-
-   
 
     #calculate concentrations before WS2 
     PreWS2flow = rivflow+ws1flow
@@ -99,10 +96,9 @@ hline!([4],label="Regulatory Limit")
 i = 15
 distfrom2 = 0
 while C[i] < 6
-  global distfrom2 = i
   global i = i+1
+  global distfrom2 = i - 15
 end
-distfrom2 = i
 ```
 The distance from Waste Source 2 until the DO concentration returns to 
 6 mg/L is `j distfrom2` km.
@@ -123,7 +119,7 @@ while Cmin < 4
 end  
 treatws2mineff = (e-1)/100
 ```
-The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j treatws2mineff`. 
+The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j (e-1)`%. 
 
 ## Problem 1.4
 ```julia
@@ -140,15 +136,18 @@ while Cmin < 4
 end    
 treatbothmineff = (e-1)/100
 ```
-The minimum level of treatment for both sources to not go below 4 mg/L is `j treatbothmineff`. 
+The minimum level of treatment for both sources to not go below 4 mg/L is `j (e-1)`%. 
 
 
 ## Problem 1.5
-I would opt to treat both waste streams equally to improve conditions in the river between Waste Source 1 and Waste Source 2, even though these improvements are not legally necessary. 
+I would opt to treat both waste streams equally. 
+If the two waste sources involve two different stakeholders, this would make the process more fair.
+It would also improve conditions in the river between Waste Source 1 and Waste Source 2, though these improvements are not legally necessary. 
+
 In order to make a more informed decision, it would be helpful to know what the two waste sources are, 
-the resources available for treating each source's waste, the specific kind of waste that's producing CBOD and NBOD, 
-the ecological conditions of the river, the density of people living at different points in the river, and the communities affected by the river. 
-These paameters could influence which source is easier to treat and which parts of the river are more important to conserve. 
+the resources available for treating each source's waste, the specific kinds of waste producing CBOD and NBOD (and if one waste source is more harmful for other reasons), 
+the ecological conditions of the river, the density of people living at different points on the river, and the communities that rely on the river. 
+These parameters could influence which source is easier to treat and which parts of the river are important to conserve. 
 
 
 ## Problem 1.6
@@ -163,9 +162,10 @@ Treatby1point5N0WS2 = (1-treatbothmineff)*N0WS2
 totalsamples = 100
 using Random
 Random.seed!(5)
+NewRivB0 = rand(4:7,totalsamples,1);
+NewRivN0 = rand(3:8,totalsamples,1);
+
 #find the minimum C value for each of these new values
-NewRivB0 = rand(4:7,totalsamples,1)
-NewRivN0 = rand(3:8,totalsamples,1)
 function below4(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
     global below4count = 0
     for i in eachindex(RivB0)
@@ -181,7 +181,9 @@ function below4(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
 end
 
 #calculate what percent of Cmin is less than 4 given treatment and variability
-percent = below4(x,NewRivB0,NewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
+percent = below4(x,NewRivB0,NewRivN0,
+Treatby1point5B0WS1,Treatby1point5N0WS1,
+Treatby1point5B0WS2,Treatby1point5N0WS2)
 ```
 You will observe DO concentrations below 4 mg/l `j percent`% of the time if you treat both waste streams, as in Problem 1.5. 
 
@@ -205,9 +207,9 @@ function sample_correlated_uniform(n, a, b, corr_coef=0.7)
 end
 ```
 ```julia
-samples = sample_correlated_uniform((totalsamples^2),[4,7],[3,8])
-CorrNewRivB0 = samples[:,1]
-CorrNewRivN0 = samples[:,2]
+samples = sample_correlated_uniform((totalsamples^2),[4,7],[3,8]);
+CorrNewRivB0 = samples[:,1];
+CorrNewRivN0 = samples[:,2];
 function below4corr(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
     global below4count = 0
     for i in eachindex(RivB0)
@@ -219,8 +221,9 @@ function below4corr(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
     percentbelow4 = round((below4count/(length(RivB0)))*100)
     return percentbelow4
 end
-percentcorr = below4corr(x,CorrNewRivB0,CorrNewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
-println(percentcorr)
+percentcorr = below4corr(x,CorrNewRivB0,CorrNewRivN0,
+Treatby1point5B0WS1,Treatby1point5N0WS1,
+Treatby1point5B0WS2,Treatby1point5N0WS2)
 ```
 You will observe DO concentrations below 4 mg/l `j percentcorr`% of the time if you treat both waste streams, as in Problem 1.5. 
 
@@ -229,7 +232,7 @@ While Problem 1.5 found a minimum treatment level such that the river would not 
 concentrations lower than 4 mg/L, when uncertainty was included in Problems 1.6 and 1.7, it appeared likely 
 that DO concentrations would not meet standards more than half of the time. Additionally, having correlated CBOD and NBOD 
 concentrations restricted the number of combinations of the two parameters, and from a series of Monte Carlo simulations, it appeared 
-that the correlation is associated with a slightly higher probability of dropping below 4 mg/L. 
+that the correlation is associated with a slightly higher probability of dropping below 4 mg/L DO. 
 
 While I would keep the same general approach as in Problem 1.5, where I would treat both waste sources,
 I would have to determine a different minimum treatment level. 
@@ -238,6 +241,8 @@ One way to determine a new treatment level would be to choose the most conservat
 DO concentrations in the river - and determine the treatment necessary under those conditions. 
 
 It would be beneficial to know more about the underlying distribution and about conditions that might affect higher/lower river DO. 
+For example, it would be helpful to know the minimum and maximum observed DO concentrations in the river.
+It would also help to know more about the uncertainty associated with Waste Sources 1 and 2.  
 
 # References
 Julia Discourse [HelgavonLichtenstein]. (2019, March). How to create a random Uniform Distribution between (but excluding) 0 and 10. [Online forum post]. Julia. https://discourse.julialang.org/t/how-to-create-a-random-uniform-distribution-between-but-excluding-0-and-10/21908
