@@ -1,6 +1,6 @@
 ---
 title: "BEE 4750/5750 Homework 2"
-author: "Your name here (your netID here)"
+author: "Julia Gonzales (jeg334)"
 date: `j import Dates; Dates.Date(Dates.now())`
 weave_options:
     term: true
@@ -181,7 +181,7 @@ end
 #calculate what percent of Cmin is less than 4 given treatment and variability
 percent = below4(x,NewRivB0,NewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
 ```
-You will observe DO concentrations below 4 mg/l `j percent`% of the time. 
+You will observe DO concentrations below 4 mg/l `j percent`% of the time if you treat both waste streams, as in Problem 1.5. 
 
 ## Problem 1.7
 
@@ -203,12 +203,25 @@ function sample_correlated_uniform(n, a, b, corr_coef=0.7)
 end
 ```
 ```julia
-
-
+samples = sample_correlated_uniform(totalsamples,[4,7],[3,8])
+CorrNewRivB0 = samples[:,1]
+CorrNewRivN0 = samples[:,2]
+function below4corr(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
+    global below4count = 0
+    for i in eachindex(RivB0)
+        C = concentration_calc(x,RivB0[i],RivN0[i],B0WS1,N0WS1,B0WS2,N0WS2)
+        if minimum(C)<=4
+             global below4count = below4count + 1
+         end
+    end
+    percentbelow4 = round((below4count/(length(RivB0)))*100)
+    return percentbelow4
+end
+percentcorr = below4corr(x,CorrNewRivB0,CorrNewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
 ```
+You will observe DO concentrations below 4 mg/l `j percentcorr`% of the time if you treat both waste streams, as in Problem 1.5. 
 
 ## Problem 1.8
 
-```
 
 # References
