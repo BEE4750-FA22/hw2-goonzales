@@ -121,7 +121,7 @@ while Cmin < 4
     global Cmin = minimum(Ctreated)
     global e = e+1
 end  
-treatws2mineff = e-1
+treatws2mineff = (e-1)/100
 ```
 The minimum level of treatment for Waste Source 2 to not go below 4 mg/L is `j treatws2mineff`. 
 
@@ -138,7 +138,7 @@ while Cmin < 4
     global Cmin = minimum(Ctreated)
     global e = e+1
 end    
-treatbothmineff = e-1
+treatbothmineff = (e-1)/100
 ```
 The minimum level of treatment for both sources to not go below 4 mg/L is `j treatbothmineff`. 
 
@@ -160,7 +160,7 @@ Treatby1point5B0WS2 = (1-treatbothmineff)*B0WS2
 Treatby1point5N0WS2 = (1-treatbothmineff)*N0WS2
 
 #create a random sample
-totalsamples = 10
+totalsamples = 100
 #find the minimum C value for each of these new values
 NewRivB0 = rand(4:7,totalsamples,1)
 NewRivN0 = rand(3:8,totalsamples,1)
@@ -168,13 +168,13 @@ function below4(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
     global below4count = 0
     for i in eachindex(RivB0)
         for j in eachindex(RivN0)
-            C = concentration_calc(x,RivB0[i],RivN0[j],B0WS1,N0WS1,B0WS2,N0WS2)
+            local C = concentration_calc(x,RivB0[i],RivN0[j],B0WS1,N0WS1,B0WS2,N0WS2)
             if minimum(C)<=4
                 global below4count = below4count + 1
             end
         end
     end
-    percentbelow4 = round((below4count/(totalsamples*totalsamples))*100)
+    percentbelow4 = round((below4count/((length(RivB0)*length(RivN0))))*100) 
     return percentbelow4
 end
 
@@ -203,7 +203,7 @@ function sample_correlated_uniform(n, a, b, corr_coef=0.7)
 end
 ```
 ```julia
-samples = sample_correlated_uniform(totalsamples,[4,7],[3,8])
+samples = sample_correlated_uniform((totalsamples^2),[4,7],[3,8])
 CorrNewRivB0 = samples[:,1]
 CorrNewRivN0 = samples[:,2]
 function below4corr(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
@@ -218,10 +218,23 @@ function below4corr(x,RivB0,RivN0,B0WS1,N0WS1,B0WS2,N0WS2)
     return percentbelow4
 end
 percentcorr = below4corr(x,CorrNewRivB0,CorrNewRivN0,Treatby1point5B0WS1,Treatby1point5N0WS1,Treatby1point5B0WS2,Treatby1point5N0WS2)
+println(percentcorr)
 ```
 You will observe DO concentrations below 4 mg/l `j percentcorr`% of the time if you treat both waste streams, as in Problem 1.5. 
 
 ## Problem 1.8
+While Problem 1.5 found a minimum treatment level such that the river would not experience DO 
+concentrations lower than 4 mg/L, when uncertainty was included in Problems 1.6 and 1.7, it appeared likely 
+that DO concentrations would not meet standards more than half of the time. Additionally, having correlated CBOD and NBOD 
+concentrations restricted the number of combinations of the two parameters, and from a series of Monte Carlo simulations, it appeared 
+that the correlation is associated with a higher probability of dropping below 4 mg/L. 
 
+While I would keep the same general approach as in Problem 1.5, where I would treat both waste sources,
+I would have to determine a different minimum treatment level. 
+
+One way to determine a new treatment level would be to choose the most conservative values - in this case, the lowest possible 
+DO concentrations in the river - and determine the treatment necessary under those conditions. 
+
+It would be beneficial to know more about the underlying distribution and about conditions that might affect higher/lower river DO. 
 
 # References
